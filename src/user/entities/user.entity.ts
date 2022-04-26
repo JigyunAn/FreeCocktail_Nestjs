@@ -31,6 +31,7 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
+    console.log('체크');
     this.password = await bcrypt.hash(this.password, 10);
   }
   @OneToMany((type) => Like, (like) => like.user)

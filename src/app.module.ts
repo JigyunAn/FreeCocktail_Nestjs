@@ -9,7 +9,6 @@ import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
-    UserModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -22,7 +21,9 @@ import { LikeModule } from './like/like.module';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       synchronize: false,
+      entities: ['dist/**/*.entity.{ts,js}'],
     }),
+    UserModule,
     RecipeModule,
     LikeModule,
   ],
