@@ -8,14 +8,17 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { EditUserDto } from './dto/edit-user.dto';
+import { ReturnUserDto } from './dto/return-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private authService: AuthService,
   ) {}
 
   // 이미지작업 요망
@@ -46,7 +49,7 @@ export class UserService {
     return true;
   }
 
-  async Login(loginUserDto: LoginUserDto): Promise<User> {
+  async Login(loginUserDto: LoginUserDto): Promise<ReturnUserDto> {
     const UserInfo = await this.usersRepository.findOne({
       email: loginUserDto.email,
     });
@@ -58,7 +61,8 @@ export class UserService {
     if (!UserInfo || !PasswordCheck) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
-    return UserInfo;
+
+    return this.authService.Login(UserInfo);
   }
 
   async Edit(id: string, editUserDto: EditUserDto): Promise<boolean> {
