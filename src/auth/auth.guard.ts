@@ -16,16 +16,19 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
+
+    const userData = this.validateRequest(request);
+
+    request.body.UserData = userData;
+
     return this.validateRequest(request);
   }
 
   private validateRequest(request: Request) {
     try {
-      const jwtString = request.headers.authorization.split('Bearer ')[1];
+      const jwtString = request.cookies['accessToken'];
 
-      this.authService.verify(jwtString);
-
-      return true;
+      return this.authService.verify(jwtString);
     } catch {
       throw new UnauthorizedException();
     }

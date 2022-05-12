@@ -20,7 +20,11 @@ export class User {
   @Column({ type: 'varchar' })
   password: string;
 
-  @Column({ type: 'varchar' })
+  @Column({
+    type: 'varchar',
+    default:
+      'https://dorun-image.s3.ap-northeast-2.amazonaws.com/images/defaultImg.png',
+  })
   image: string;
 
   @Column({ type: 'varchar' })

@@ -12,6 +12,7 @@ import { ReturnUserDto } from './dto/return-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth/auth.service';
+import { Response } from 'express';
 
 @Injectable()
 export class UserService {
@@ -49,7 +50,10 @@ export class UserService {
     return true;
   }
 
-  async Login(loginUserDto: LoginUserDto): Promise<ReturnUserDto> {
+  async Login(
+    loginUserDto: LoginUserDto,
+    res: Response,
+  ): Promise<ReturnUserDto> {
     const UserInfo = await this.usersRepository.findOne({
       email: loginUserDto.email,
     });
@@ -61,17 +65,48 @@ export class UserService {
     if (!UserInfo || !PasswordCheck) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
+    const token = this.authService.Login(UserInfo);
 
-    return this.authService.Login(UserInfo);
+    res.cookie('accessToken', token, {
+      maxAge: 60 * 60 * 24 * 1, //1day
+      sameSite: 'none',
+      httpOnly: true,
+      //secure: true, // 추후 활성화
+    });
+
+    return UserInfo;
   }
 
-  async Edit(id: string, editUserDto: EditUserDto): Promise<boolean> {
-    const userInfo = await this.usersRepository.update(id, editUserDto);
+  async Logout(res: Response): Promise<boolean> {
+    res.clearCookie('accessToken');
+    return true;
+  }
+
+  async Edit(
+    file: Express.Multer.File,
+    editUserDto: EditUserDto,
+    id: string,
+  ): Promise<boolean> {
+    if (editUserDto.password) {
+      editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
+    }
+
+    if (file) {
+      editUserDto.image = file['location'];
+    }
+
+    const userInfo = await this.usersRepository.update(id, {
+      ...editUserDto,
+    });
 
     if (userInfo.affected !== 1) {
       throw new NotFoundException('유저가 존재하지 않습니다.');
     }
 
     return true;
+  }
+
+  async UserInfo(email: string): Promise<User> {
+    return this.usersRepository.findOne({ email });
   }
 }

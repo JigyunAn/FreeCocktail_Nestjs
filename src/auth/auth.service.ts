@@ -12,8 +12,8 @@ export class AuthService {
 
   Login(loginUser: User): any {
     const payload = { loginUser };
-    loginUser['token'] = this.jwtService.sign(payload);
-    return loginUser;
+    //loginUser['token'] = this.jwtService.sign(payload);
+    return this.jwtService.sign(payload);
   }
 
   verify(jwtString: string) {

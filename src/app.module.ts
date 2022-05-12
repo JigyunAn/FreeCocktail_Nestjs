@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecipeModule } from './recipe/recipe.module';
 import { LikeModule } from './like/like.module';
 import { AuthModule } from './auth/auth.module';
+import { MulterModule } from './multer/multer.module';
 
 @Module({
   imports: [
@@ -21,13 +22,14 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      synchronize: false,
+      synchronize: true,
       entities: ['dist/**/*.entity.{ts,js}'],
     }),
     UserModule,
     RecipeModule,
     LikeModule,
     AuthModule,
+    MulterModule,
   ],
   controllers: [AppController],
   providers: [AppService],
