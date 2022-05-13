@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecipeModule } from './recipe/recipe.module';
 import { LikeModule } from './like/like.module';
 import { AuthModule } from './auth/auth.module';
-import { MulterModule } from './multer/multer.module';
 
 @Module({
   imports: [
@@ -29,7 +28,6 @@ import { MulterModule } from './multer/multer.module';
     RecipeModule,
     LikeModule,
     AuthModule,
-    MulterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

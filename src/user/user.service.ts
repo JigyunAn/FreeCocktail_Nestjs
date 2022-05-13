@@ -83,16 +83,15 @@ export class UserService {
   }
 
   async Edit(
-    file: Express.Multer.File,
+    iamge: Express.Multer.File,
     editUserDto: EditUserDto,
     id: string,
   ): Promise<boolean> {
     if (editUserDto.password) {
       editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
     }
-
-    if (file) {
-      editUserDto.image = file['location'];
+    if (iamge) {
+      editUserDto.image = iamge['location'];
     }
 
     const userInfo = await this.usersRepository.update(id, {

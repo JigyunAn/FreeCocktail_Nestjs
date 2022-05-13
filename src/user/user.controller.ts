@@ -16,13 +16,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
-import { EditUserDto } from './dto/edit-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Response } from 'express';
-import * as multerS3 from 'multer-s3';
-import * as AWS from 'aws-sdk';
-
-const s3 = new AWS.S3();
 
 @Controller('user')
 export class UserController {
@@ -54,13 +49,13 @@ export class UserController {
 
   //@UseGuards(AuthGuard)
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('image'))
   async UserEdit(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() iamge: Express.Multer.File,
     @Param('id') id: string,
     @Body() body,
   ): Promise<boolean> {
-    return this.userService.Edit(file, body, id);
+    return this.userService.Edit(iamge, body, id);
   }
 
   @Get(':email')
