@@ -28,12 +28,6 @@ export class UserController {
     return this.userService.SignUp(createUserDto);
   }
 
-  @UseGuards(AuthGuard)
-  @Delete(':email')
-  UserSignOut(@Param('email') email: string): Promise<boolean> {
-    return this.userService.SignOut(email);
-  }
-
   @Post('/login')
   UserLogin(
     @Body() loginUserDto: LoginUserDto,
@@ -47,19 +41,25 @@ export class UserController {
     return this.userService.Logout(res);
   }
 
-  //@UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
+  @Delete(':email')
+  UserSignOut(@Param('email') email: string): Promise<boolean> {
+    return this.userService.SignOut(email);
+  }
+
+  @UseGuards(AuthGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   async UserEdit(
-    @UploadedFile() iamge: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Param('id') id: string,
     @Body() body,
   ): Promise<boolean> {
-    return this.userService.Edit(iamge, body, id);
+    return this.userService.Edit(image, body, id);
   }
 
   @Get(':email')
   UserFind(@Param('email') email: string): Promise<User> {
-    return this.userService.UserInfo(email);
+    return this.userService.FindOne(email);
   }
 }

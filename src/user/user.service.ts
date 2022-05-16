@@ -22,7 +22,6 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  // 이미지작업 요망
   async SignUp(createuserDto: CreateUserDto): Promise<User> {
     const UserInfo = await this.usersRepository.findOne({
       email: createuserDto.email,
@@ -65,7 +64,7 @@ export class UserService {
     if (!UserInfo || !PasswordCheck) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
-    const token = this.authService.Login(UserInfo);
+    const token = this.authService.getToken(UserInfo);
 
     res.cookie('accessToken', token, {
       maxAge: 60 * 60 * 24 * 1, //1day
@@ -83,15 +82,15 @@ export class UserService {
   }
 
   async Edit(
-    iamge: Express.Multer.File,
+    image: Express.Multer.File,
     editUserDto: EditUserDto,
     id: string,
   ): Promise<boolean> {
     if (editUserDto.password) {
       editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
     }
-    if (iamge) {
-      editUserDto.image = iamge['location'];
+    if (image) {
+      editUserDto.image = image['location'];
     }
 
     const userInfo = await this.usersRepository.update(id, {
@@ -105,7 +104,7 @@ export class UserService {
     return true;
   }
 
-  async UserInfo(email: string): Promise<User> {
+  async FindOne(email: string): Promise<User> {
     return this.usersRepository.findOne({ email });
   }
 }

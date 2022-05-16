@@ -7,10 +7,10 @@ export class Like {
   id: number;
 
   @Column({ type: 'varchar' })
-  userId: string;
+  userId: number;
 
   @Column({ type: 'varchar' })
-  drinkId: string;
+  drinkId: number;
 
   @ManyToOne((type) => User, (user) => user.likes)
   user: User;

@@ -10,9 +10,8 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  Login(loginUser: User): any {
+  getToken(loginUser: User): any {
     const payload = { loginUser };
-    //loginUser['token'] = this.jwtService.sign(payload);
     return this.jwtService.sign(payload);
   }
 

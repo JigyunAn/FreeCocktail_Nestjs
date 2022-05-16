@@ -5,7 +5,7 @@ import {
   BeforeInsert,
   OneToMany,
 } from 'typeorm';
-import { loginType } from '../LoginType';
+import { loginType } from './loginType';
 import * as bcrypt from 'bcrypt';
 import { Like } from 'src/like/entities/like.entity';
 
