@@ -18,16 +18,15 @@ import { User } from './entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Response } from 'express';
+import { EditUserDto } from './dto/edit-user.dto';
 import {
   ApiTags,
   ApiOperation,
   ApiOkResponse,
   ApiResponse,
-  ApiAcceptedResponse,
   ApiCreatedResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { EditUserDto } from './dto/edit-user.dto';
 
 @Controller('user')
 @ApiTags('User API')
