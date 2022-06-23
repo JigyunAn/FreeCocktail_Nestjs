@@ -5,8 +5,6 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecipeModule } from './recipe/recipe.module';
-import { LikeModule } from './like/like.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [

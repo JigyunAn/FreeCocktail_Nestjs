@@ -15,19 +15,21 @@ export class RecipeService {
     private recipeRepository: Repository<Recipe>,
   ) {}
 
-  async create(createRecipeDto: CreateRecipeDto, image) {
+  async create(createRecipeDto: CreateRecipeDto, image): Promise<Recipe> {
     try {
-      createRecipeDto.image = image['location'];
+      if (image) {
+        createRecipeDto.image = image['location'];
+      }
 
       const recipeInfo = this.recipeRepository.create(createRecipeDto);
 
       return await this.recipeRepository.save(recipeInfo);
     } catch (err) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(err.message);
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Recipe[]> {
     return await this.recipeRepository.find({ order: { id: 'ASC' } });
   }
 
@@ -57,7 +59,7 @@ export class RecipeService {
       .getMany();
   }
 
-  async updateLike(recipeLikeDto: RecipeLikeDto) {
+  async updateLike(recipeLikeDto: RecipeLikeDto): Promise<Recipe> {
     const recipeInfo = await this.recipeRepository.findOne({
       id: recipeLikeDto.recipeId,
     });
@@ -71,6 +73,14 @@ export class RecipeService {
     }
 
     this.recipeRepository.save(recipeInfo);
+    return recipeInfo;
+  }
+
+  async findByUserRecipe(id: number): Promise<Recipe[]> {
+    const recipeInfo = await this.recipeRepository.find({
+      userId: id,
+    });
+
     return recipeInfo;
   }
 }

@@ -10,6 +10,7 @@ import {
   UseGuards,
   UploadedFile,
   UseInterceptors,
+  HttpCode,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -40,9 +41,10 @@ export class UserController {
     return this.userService.SignUp(createUserDto);
   }
 
-  @Post('/login') //리턴값 boolean 협의
+  @Post('/login')
   @ApiOperation({ summary: '로그인', description: '로그인 진행' })
   @ApiOkResponse({ description: '로그인 성공.', type: User })
+  @HttpCode(200)
   UserLogin(
     @Body() loginUserDto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -58,7 +60,9 @@ export class UserController {
       example: true,
     },
   })
-  UserLogout(@Res({ passthrough: true }) res: Response): Promise<boolean> {
+  @HttpCode(200)
+  //UserLogout(@Res({ passthrough: true }) res: Response): Promise<boolean> {
+  UserLogout(@Res({ passthrough: true }) res: Response): any {
     return this.userService.Logout(res);
   }
 

@@ -31,6 +31,7 @@ export class UserService {
       throw new ConflictException('이미 가입되어 있는 이메일 입니다.');
     }
     const UserData = this.usersRepository.create(createuserDto);
+
     return await this.usersRepository.save(UserData);
   }
 
@@ -56,14 +57,18 @@ export class UserService {
     const UserInfo = await this.usersRepository.findOne({
       email: loginUserDto.email,
     });
+    if (!UserInfo) {
+      throw new NotFoundException('유효하지 않은 유저정보 입니다.');
+    }
 
     const PasswordCheck = await bcrypt.compare(
       loginUserDto.password,
       UserInfo.password,
     );
-    if (!UserInfo || !PasswordCheck) {
+    if (!PasswordCheck) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
+
     const token = this.authService.getToken(UserInfo);
 
     res.cookie('accessToken', token, {
@@ -76,7 +81,7 @@ export class UserService {
     return UserInfo;
   }
 
-  async Logout(res: Response): Promise<boolean> {
+  Logout(res: Response): any {
     res.clearCookie('accessToken');
     return true;
   }
@@ -89,6 +94,7 @@ export class UserService {
     if (editUserDto.password) {
       editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
     }
+
     if (image) {
       editUserDto.image = image['location'];
     }
@@ -105,6 +111,11 @@ export class UserService {
   }
 
   async FindOne(email: string): Promise<User> {
-    return this.usersRepository.findOne({ email });
+    const userInfo = await this.usersRepository.findOne({ email });
+
+    if (!userInfo) {
+      throw new NotFoundException('유저가 존재하지 않습니다.');
+    }
+    return userInfo;
   }
 }

@@ -9,6 +9,7 @@ import { loginType } from './loginType';
 import * as bcrypt from 'bcrypt';
 import { Like } from 'src/like/entities/like.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Recipe } from 'src/recipe/entities/recipe.entity';
 
 @Entity('user')
 export class User {
@@ -39,7 +40,7 @@ export class User {
   })
   image: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   @ApiProperty({ example: '123asd@gmail.com', description: '유저 이메일' })
   email: string;
 
@@ -52,6 +53,14 @@ export class User {
     console.log('체크');
     this.password = await bcrypt.hash(this.password, 10);
   }
-  @OneToMany((type) => Like, (like) => like.user)
+  @OneToMany((type) => Like, (like) => like.user, {
+    eager: true,
+  })
   likes: Like[];
+
+  @ApiProperty({ description: '유저가 만든 레시피' })
+  @OneToMany((type) => Recipe, (recipe) => recipe.user, {
+    eager: true,
+  })
+  recipes: Recipe[];
 }

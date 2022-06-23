@@ -6,15 +6,17 @@ export class Like {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'int' })
   userId: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'int' })
   drinkId: number;
 
   @ManyToOne((type) => User, (user) => user.likes)
   user: User;
 
-  @ManyToOne((type) => Recipe, (drink) => drink.likes)
+  @ManyToOne((type) => Recipe, (drink) => drink.likes, {
+    eager: true,
+  })
   drink: Recipe;
 }

@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Like } from 'src/like/entities/like.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity('drink')
 export class Recipe {
@@ -89,6 +91,16 @@ export class Recipe {
   })
   updatedAt: Date;
 
+  @ApiProperty({
+    example: 1,
+    description: '레시피를 생성한 유저의 id',
+  })
+  @Column({ type: 'int', nullable: true, default: null })
+  userId: number;
+
   @OneToMany((type) => Like, (like) => like.drink)
   likes: Like[];
+
+  @ManyToOne((type) => User, (user) => user.recipes)
+  user: User;
 }

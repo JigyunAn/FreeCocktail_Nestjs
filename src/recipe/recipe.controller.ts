@@ -33,7 +33,10 @@ export class RecipeController {
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  @ApiOperation({ summary: '레시피 생성', description: '레시피 생성' })
+  @ApiOperation({
+    summary: '커스텀 레시피 생성',
+    description: '커스텀 레시피 생성',
+  })
   @ApiCreatedResponse({ description: '레시피 생성 성공', type: Recipe })
   recipeCreate(
     @UploadedFile() image: Express.Multer.File,
@@ -91,5 +94,15 @@ export class RecipeController {
   @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
   recipeFindId(@Param('id') id: string): Promise<Recipe> {
     return this.recipeService.findOne(+id);
+  }
+
+  @Get('/custom/:userId')
+  @ApiOperation({
+    summary: '유저가 만든 커스텀 레시피 조회',
+    description: '유저가 만든 커스텀 레시피 조회',
+  })
+  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
+  recipeFindUserId(@Param('userId') userId: string): Promise<Recipe[]> {
+    return this.recipeService.findByUserRecipe(+userId);
   }
 }
