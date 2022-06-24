@@ -79,13 +79,13 @@ export class UserController {
     return this.userService.SignOut(email);
   }
 
-  @Get('/check-name')
+  @Get('/check-name/:nickname')
   @ApiOperation({
     summary: '유저 닉네임 중복 체크',
     description: '유저 닉네임 중복 체크',
   })
   @ApiOkResponse({ description: '조회 성공.', type: Boolean })
-  UserNameCheck(@Body('nickname') nickname: string) {
+  UserNameCheck(@Param('nickname') nickname: string) {
     return this.userService.NameCheck(nickname);
   }
 
