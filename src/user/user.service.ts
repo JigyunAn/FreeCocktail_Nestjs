@@ -101,22 +101,30 @@ export class UserService {
     editUserDto: EditUserDto,
     id: string,
   ): Promise<boolean> {
-    if (editUserDto.password) {
-      editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
-    }
+    try {
+      if (editUserDto.password) {
+        editUserDto.password = await bcrypt.hash(editUserDto.password, 10);
+      }
 
-    if (image) {
-      editUserDto.image = image['location'];
-    }
+      if (image) {
+        editUserDto.image = image['location'];
+      }
 
-    const userInfo = await this.usersRepository.update(id, {
-      ...editUserDto,
-    });
+      const userInfo = await this.usersRepository.update(id, {
+        ...editUserDto,
+      });
 
-    if (userInfo.affected !== 1) {
-      throw new NotFoundException('유저가 존재하지 않습니다.');
+      if (userInfo.affected !== 1) {
+        throw new NotFoundException('유저가 존재하지 않습니다.');
+      }
+      return true;
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('이메일 또는 닉네임이 사용중입니다.');
+      }
+
+      throw new InternalServerErrorException(err);
     }
-    return true;
   }
 
   async FindOne(email: string): Promise<User> {
