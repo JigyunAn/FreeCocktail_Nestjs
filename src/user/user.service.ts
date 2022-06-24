@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,16 +24,24 @@ export class UserService {
   ) {}
 
   async SignUp(createuserDto: CreateUserDto): Promise<User> {
-    const UserInfo = await this.usersRepository.findOne({
-      email: createuserDto.email,
-    });
+    try {
+      const UserInfo = await this.usersRepository.findOne({
+        email: createuserDto.email,
+      });
 
-    if (UserInfo) {
-      throw new ConflictException('이미 가입되어 있는 이메일 입니다.');
+      if (UserInfo) {
+        throw new ConflictException('이미 가입되어 있는 이메일 입니다.');
+      }
+      const UserData = this.usersRepository.create(createuserDto);
+
+      return await this.usersRepository.save(UserData);
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new ConflictException('이미 사용중인 닉네임 입니다.');
+      }
+
+      throw new InternalServerErrorException(err);
     }
-    const UserData = this.usersRepository.create(createuserDto);
-
-    return await this.usersRepository.save(UserData);
   }
 
   async SignOut(email: string): Promise<boolean> {
@@ -86,6 +95,7 @@ export class UserService {
     return true;
   }
 
+  //닉네임 중복확인
   async Edit(
     image: Express.Multer.File,
     editUserDto: EditUserDto,

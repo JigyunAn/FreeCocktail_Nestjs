@@ -17,7 +17,7 @@ export class User {
   @ApiProperty({ example: 1, description: '유저 아이디' })
   id: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   @ApiProperty({ example: '홍길동', description: '유저 이름' })
   nickname: string;
 
