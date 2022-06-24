@@ -106,7 +106,6 @@ export class UserService {
     if (userInfo.affected !== 1) {
       throw new NotFoundException('유저가 존재하지 않습니다.');
     }
-
     return true;
   }
 

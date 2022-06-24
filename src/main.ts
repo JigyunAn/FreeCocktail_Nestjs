@@ -24,6 +24,10 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   app.use(cookieParser());
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
   await app.listen(3001);
 }
 bootstrap();
