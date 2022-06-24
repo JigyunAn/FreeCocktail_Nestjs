@@ -79,6 +79,16 @@ export class UserController {
     return this.userService.SignOut(email);
   }
 
+  @Get('/check-name')
+  @ApiOperation({
+    summary: '유저 닉네임 중복 체크',
+    description: '유저 닉네임 중복 체크',
+  })
+  @ApiOkResponse({ description: '조회 성공.', type: Boolean })
+  UserNameCheck(@Body('nickname') nickname: string) {
+    return this.userService.NameCheck(nickname);
+  }
+
   @UseGuards(AuthGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
@@ -92,7 +102,7 @@ export class UserController {
       example: true,
     },
   })
-  async UserEdit(
+  UserEdit(
     @UploadedFile() image: Express.Multer.File,
     @Param('id') id: string,
     @Body() editUserDto: EditUserDto,

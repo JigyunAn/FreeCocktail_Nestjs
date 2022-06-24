@@ -135,4 +135,14 @@ export class UserService {
     }
     return userInfo;
   }
+
+  async NameCheck(nickname: string): Promise<boolean> {
+    const userInfo = await this.usersRepository.findOne({ nickname });
+
+    if (userInfo) {
+      return true;
+    }
+
+    return false;
+  }
 }
