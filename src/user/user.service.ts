@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,8 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth/auth.service';
 import { Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
+import { loginType } from './entities/loginType';
 
 @Injectable()
 export class UserService {
@@ -25,16 +28,16 @@ export class UserService {
 
   async SignUp(createuserDto: CreateUserDto): Promise<User> {
     try {
-      const UserInfo = await this.usersRepository.findOne({
+      const userInfo = await this.usersRepository.findOne({
         email: createuserDto.email,
       });
 
-      if (UserInfo) {
+      if (userInfo) {
         throw new ConflictException('이미 가입되어 있는 이메일 입니다.');
       }
-      const UserData = this.usersRepository.create(createuserDto);
+      const userData = this.usersRepository.create(createuserDto);
 
-      return await this.usersRepository.save(UserData);
+      return await this.usersRepository.save(userData);
     } catch (err) {
       if (err.code === '23505') {
         throw new ConflictException('이미 사용중인 닉네임 입니다.');
@@ -63,22 +66,22 @@ export class UserService {
     loginUserDto: LoginUserDto,
     res: Response,
   ): Promise<ReturnUserDto> {
-    const UserInfo = await this.usersRepository.findOne({
+    const userInfo = await this.usersRepository.findOne({
       email: loginUserDto.email,
     });
-    if (!UserInfo) {
+    if (!userInfo) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
 
     const PasswordCheck = await bcrypt.compare(
       loginUserDto.password,
-      UserInfo.password,
+      userInfo.password,
     );
     if (!PasswordCheck) {
       throw new NotFoundException('유효하지 않은 유저정보 입니다.');
     }
 
-    const token = this.authService.getToken(UserInfo);
+    const token = this.authService.getToken(userInfo);
 
     res.cookie('accessToken', token, {
       maxAge: 60 * 60 * 24 * 1, //1day
@@ -87,7 +90,7 @@ export class UserService {
       //secure: true, // 추후 활성화
     });
 
-    return UserInfo;
+    return userInfo;
   }
 
   Logout(res: Response): any {
@@ -144,5 +147,44 @@ export class UserService {
     }
 
     return false;
+  }
+
+  async GoogleLogin(idToken: string, res: Response): Promise<User> {
+    if (!idToken) {
+      throw new BadRequestException('Id 토큰을 확인해주세요');
+    }
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
+
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENTID,
+    });
+
+    const { email, name, picture, sub } = ticket.getPayload();
+
+    let userInfo = await this.usersRepository.findOne({ email });
+
+    if (!userInfo) {
+      const userData = this.usersRepository.create({
+        nickname: name,
+        password: sub, //sub: 구글아이디의 유니크 ID
+        image: picture,
+        email,
+        type: loginType.google,
+      });
+
+      userInfo = await this.usersRepository.save(userData);
+    }
+
+    const token = this.authService.getToken(userInfo);
+
+    res.cookie('accessToken', token, {
+      maxAge: 60 * 60 * 24 * 1, //1day
+      sameSite: 'none',
+      httpOnly: true,
+      //secure: true, // 추후 활성화
+    });
+
+    return userInfo;
   }
 }

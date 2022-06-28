@@ -66,6 +66,17 @@ export class UserController {
     return this.userService.Logout(res);
   }
 
+  @Post('/google')
+  @ApiOperation({ summary: '소셜로그인 구글', description: '소셜로그인 구글' })
+  @ApiOkResponse({ description: '로그인 성공.', type: User })
+  UserGoogleLogin(
+    @Body('idToken') idToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.userService.GoogleLogin(idToken, res);
+  }
+
+  //@ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':email')
   @ApiOperation({ summary: '유저 탈퇴', description: '유저 탈퇴' })
