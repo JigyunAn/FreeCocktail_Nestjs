@@ -17,6 +17,7 @@ import { AuthService } from '../auth/auth.service';
 import { Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { loginType } from './entities/loginType';
+import axios from 'axios';
 
 @Injectable()
 export class UserService {
@@ -150,41 +151,89 @@ export class UserService {
   }
 
   async GoogleLogin(idToken: string, res: Response): Promise<User> {
-    if (!idToken) {
-      throw new BadRequestException('Id 토큰을 확인해주세요');
-    }
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
+    try {
+      if (!idToken) {
+        throw new BadRequestException('Id 토큰을 확인해주세요');
+      }
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENTID);
 
-    const ticket = await client.verifyIdToken({
-      idToken: idToken,
-      audience: process.env.GOOGLE_CLIENTID,
-    });
-
-    const { email, name, picture, sub } = ticket.getPayload();
-
-    let userInfo = await this.usersRepository.findOne({ email });
-
-    if (!userInfo) {
-      const userData = this.usersRepository.create({
-        nickname: name,
-        password: sub, //sub: 구글아이디의 유니크 ID
-        image: picture,
-        email,
-        type: loginType.google,
+      const ticket = await client.verifyIdToken({
+        idToken: idToken,
+        audience: process.env.GOOGLE_CLIENTID,
       });
 
-      userInfo = await this.usersRepository.save(userData);
+      const { email, name, picture, sub } = ticket.getPayload();
+
+      let userInfo = await this.usersRepository.findOne({ email });
+
+      if (!userInfo) {
+        const userData = this.usersRepository.create({
+          nickname: `${name}_`,
+          password: sub, //sub: 구글아이디의 유니크 ID
+          image: picture,
+          email,
+          type: loginType.google,
+        });
+
+        userInfo = await this.usersRepository.save(userData);
+      }
+
+      const token = this.authService.getToken(userInfo);
+
+      res.cookie('accessToken', token, {
+        maxAge: 60 * 60 * 24 * 1, //1day
+        sameSite: 'none',
+        httpOnly: true,
+        //secure: true, // 추후 활성화
+      });
+
+      return userInfo;
+    } catch (err) {
+      throw new BadRequestException(err);
     }
+  }
 
-    const token = this.authService.getToken(userInfo);
+  async NaverLogin(idToken: string, res: Response): Promise<User> {
+    try {
+      if (!idToken) {
+        throw new BadRequestException('Id 토큰을 확인해주세요');
+      }
 
-    res.cookie('accessToken', token, {
-      maxAge: 60 * 60 * 24 * 1, //1day
-      sameSite: 'none',
-      httpOnly: true,
-      //secure: true, // 추후 활성화
-    });
+      const { data: NaverUserData } = await axios.get(
+        'https://openapi.naver.com/v1/nid/me',
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        },
+      );
 
-    return userInfo;
+      const { email, name, id, profile_image } = NaverUserData['response'];
+
+      let userInfo = await this.usersRepository.findOne({ email });
+
+      if (!userInfo) {
+        const userData = this.usersRepository.create({
+          nickname: `${name}_`,
+          password: id, // id: 네이버 유니크 id
+          image: profile_image,
+          email,
+          type: loginType.naver,
+        });
+        userInfo = await this.usersRepository.save(userData);
+      }
+      const token = this.authService.getToken(userInfo);
+
+      res.cookie('accessToken', token, {
+        maxAge: 60 * 60 * 24 * 1, //1day
+        sameSite: 'none',
+        httpOnly: true,
+        //secure: true, // 추후 활성화
+      });
+
+      return userInfo;
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
   }
 }
