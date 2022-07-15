@@ -12,7 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RecipeService } from './recipe.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipeTagQueryDto } from './dto/query-tag-recipe.dto';
-import { RecipeLikeQueryDto } from './dto/query-like-recipe.dto';
+import { RecipePageNationDto } from './dto/query-page-nation-recipe.dto';
 import { RecipeLikeDto } from './dto/like-recipe.dto';
 import { LikeService } from '../like/like.service';
 import {
@@ -20,6 +20,7 @@ import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBearerAuth,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import { Recipe } from './entities/recipe.entity';
 
@@ -50,7 +51,7 @@ export class RecipeController {
     summary: '레시피 좋아요 증감',
     description: '레시피 좋아요 증감',
   })
-  @ApiCreatedResponse({ description: '좋아요 증감 반영 성공', type: Recipe })
+  @ApiOkResponse({ description: '좋아요 증감 반영 성공', type: Recipe })
   recipeUpdateLike(@Body() recipeLikeDto: RecipeLikeDto): Promise<Recipe> {
     this.likeService.likeUpdate(recipeLikeDto);
     return this.recipeService.updateLike(recipeLikeDto);
@@ -61,9 +62,9 @@ export class RecipeController {
     summary: '전체 레시피 조회',
     description: '전체 레시피 조회',
   })
-  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
-  recipeFindAll(): Promise<Recipe[]> {
-    return this.recipeService.findAll();
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
+  recipeFindAll(@Query() queryData: RecipePageNationDto): Promise<Recipe[]> {
+    return this.recipeService.findAll(queryData);
   }
 
   @Get('/tag')
@@ -71,7 +72,7 @@ export class RecipeController {
     summary: '태그별 레시피 조회',
     description: '태그별 레시피 조회',
   })
-  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
   recipeFindTag(@Query() queryData: RecipeTagQueryDto): Promise<Recipe[]> {
     return this.recipeService.findTag(queryData);
   }
@@ -81,8 +82,8 @@ export class RecipeController {
     summary: '좋아요 개수 순으로 레시피 조회',
     description: '좋아요 개수 순으로 레시피 조회',
   })
-  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
-  recipeFindLike(@Query() queryData: RecipeLikeQueryDto): Promise<Recipe[]> {
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
+  recipeFindLike(@Query() queryData: RecipePageNationDto): Promise<Recipe[]> {
     return this.recipeService.findLike(queryData);
   }
 
@@ -91,7 +92,7 @@ export class RecipeController {
     summary: '단일 레시피 조회',
     description: '단일 레시피 조회',
   })
-  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
   recipeFindId(@Param('id') id: string): Promise<Recipe> {
     return this.recipeService.findOne(+id);
   }
@@ -101,7 +102,7 @@ export class RecipeController {
     summary: '유저가 만든 커스텀 레시피 조회',
     description: '유저가 만든 커스텀 레시피 조회',
   })
-  @ApiCreatedResponse({ description: '조회 성공', type: [Recipe] })
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
   recipeFindUserId(@Param('userId') userId: string): Promise<Recipe[]> {
     return this.recipeService.findByUserRecipe(+userId);
   }

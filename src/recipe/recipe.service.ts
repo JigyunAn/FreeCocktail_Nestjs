@@ -6,7 +6,7 @@ import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeTagQueryDto } from './dto/query-tag-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
 import { RecipeLikeDto } from './dto/like-recipe.dto';
-import { RecipeLikeQueryDto } from './dto/query-like-recipe.dto';
+import { RecipePageNationDto } from './dto/query-page-nation-recipe.dto';
 
 @Injectable()
 export class RecipeService {
@@ -29,8 +29,15 @@ export class RecipeService {
     }
   }
 
-  async findAll(): Promise<Recipe[]> {
-    return await this.recipeRepository.find({ order: { id: 'ASC' } });
+  async findAll(data: RecipePageNationDto): Promise<Recipe[]> {
+    const { skip, size } = data;
+    //return await this.recipeRepository.find({ order: { id: 'ASC' } });
+    return await this.recipeRepository
+      .createQueryBuilder('recipe')
+      .offset(skip)
+      .limit(size)
+      .orderBy('id', 'ASC')
+      .getMany();
   }
 
   async findOne(id: number): Promise<Recipe> {
@@ -48,14 +55,14 @@ export class RecipeService {
       .getMany();
   }
 
-  async findLike(data: RecipeLikeQueryDto): Promise<Recipe[]> {
+  async findLike(data: RecipePageNationDto): Promise<Recipe[]> {
     const { skip, size } = data;
     return await this.recipeRepository
-      .createQueryBuilder('Drink')
+      .createQueryBuilder('recipe')
       .offset(skip)
       .limit(size)
-      .orderBy('Drink.likeCount', 'DESC')
-      .addOrderBy('Drink.id', 'ASC')
+      .orderBy('recipe.likeCount', 'DESC')
+      .addOrderBy('recipe.id', 'ASC')
       .getMany();
   }
 

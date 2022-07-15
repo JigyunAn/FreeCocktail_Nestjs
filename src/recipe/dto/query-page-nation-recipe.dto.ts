@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RecipeLikeQueryDto {
+export class RecipePageNationDto {
   @ApiProperty({ example: 5, description: 'skip 하려는 레시피 개수' })
   readonly skip: number;
 
