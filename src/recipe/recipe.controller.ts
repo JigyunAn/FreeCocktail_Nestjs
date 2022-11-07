@@ -106,4 +106,13 @@ export class RecipeController {
   recipeFindUserId(@Param('userId') userId: string): Promise<Recipe[]> {
     return this.recipeService.findByUserRecipe(+userId);
   }
+
+  @Get('/serch/:keyword')
+  @ApiOperation({
+    summary: '레시피 이름 및 재료가 포함된 레시피 검색',
+  })
+  @ApiOkResponse({ description: '조회 성공', type: [Recipe] })
+  serchRecipe(@Param('keyword') keyword: string): Promise<Recipe[]> {
+    return this.recipeService.SerchRecipe(keyword);
+  }
 }

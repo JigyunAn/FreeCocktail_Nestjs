@@ -90,4 +90,13 @@ export class RecipeService {
 
     return recipeInfo;
   }
+
+  async SerchRecipe(keyword: string): Promise<Recipe[]> {
+    return await this.recipeRepository
+      .createQueryBuilder('recipe')
+      .where('recipe.name LIKE :keyword', { keyword: `%${keyword}%` })
+      .orWhere('recipe.Ingredient LIKE :keyword', { keyword: `%${keyword}%` })
+      .orderBy('recipe.id', 'ASC')
+      .getMany();
+  }
 }

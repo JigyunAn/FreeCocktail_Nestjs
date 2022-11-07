@@ -23,7 +23,7 @@ import * as AWS from 'aws-sdk';
             secretAccessKey: config.get<string>('S3_SECRET_KEY'),
             region: config.get<string>('S3_REGION'),
           }),
-          bucket: 'dorun-image',
+          bucket: 'cocktail-img',
           acl: 'public-read',
           key: function (req, file, cb) {
             cb(
