@@ -120,7 +120,7 @@ export class UserController {
     summary: '유저 정보수정',
     description: '유저 정보를 수정한다.',
   })
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: '유저 정보수정 성공.',
     schema: {
       example: true,
